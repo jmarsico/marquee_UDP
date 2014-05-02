@@ -1,74 +1,90 @@
+//todo: 
+
 #include "testApp.h"
 
 
 //--------------------------------------------------------------
 void testApp::setup()
 {
-	ofSetFrameRate(15);
+	ofSetFrameRate(14);
 
-	//construct new PCA9685 object with the number of boards you're using
 	numBoards = ceil(float(numLEDs) / 16.0);
     ofLog() << "numboards: " << numBoards;
     
-
+    
 	
     ofSetVerticalSync(false);
 	cameraWidth		= 320;
 	cameraHeight	= 240;
-	cellSize = 48;
+	cellSize = 320/16;
 	cellSizeFl  = (float)cellSize;
 	numPixels = (cameraWidth/cellSize) * (cameraHeight/cellSize);
     ofLog() << "numPixels: " << numPixels;
+    
+    numCellsX = cameraWidth / cellSize;
+    numCellsY = cameraHeight / cellSize;
+    
+    ofLog() << "numCellsX: " << numCellsX << " numCellsY: " << numCellsY;
+    
 
 	displayCoeff = 1;
 	
-	videoGrabber.listDevices();
-	videoGrabber.setDesiredFrameRate(60); 
+	//videoGrabber.listDevices();
+	//videoGrabber.setDesiredFrameRate(60);
 	videoGrabber.initGrabber(cameraWidth, cameraHeight);
-	pixels = new unsigned char[numPixels];
+	//pixels = new unsigned char[numPixels];
+    
+    background.setLearningTime(400);
+    background.setThresholdValue(10);
     
     
     //noise Vars
-    noiseSpeedX = 0.01;
-    noiseSpeedY = 0.01;
-    noiseAmp = 2000;
+    noiseAmp = 254;
     time = 0;
     timeInc = 0.01;
+    for(int i = 0; i < numLEDs; i++)
+    {
+        noiseCoeffs.push_back(ofRandom(1000));
+    }
+    
+    //create the socket and set to send to 127.0.0.1:11999
+	udpConnection.Create();
+	udpConnection.Connect("169.254.0.2",11999);
+	udpConnection.SetNonBlocking(true);
     
     
-    //setup serial
-    serial.listDevices();
-	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
-	
-	// this should be set to whatever com port your serial device is connected to.
-	// (ie, COM4 on a pc, /dev/tty.... on linux, /dev/tty... on a mac)
-	// arduino users check in arduino app....
-	int baud = 57600;
-	serial.setup(0, baud); //open the first device
-	//serial.setup("COM4", baud); // windows example
-	//serial.setup("/dev/tty.usbserial-A4001JEC", baud); // mac osx example
-	//serial.setup("/dev/ttyUSB0", baud); //linux example
+    gui.setup("panel");
+    gui.add(backgroundThresh.setup("bgThresh", 21, 0, 255));
+    gui.add(learningTime.setup("learnTime", 50, 30, 2000));
+    gui.add(reset.setup("reset background"));
+    gui.add(revealAmount.setup("reveal video", 0.5, 0.0, 1.0));
+    gui.add(timeInc.setup("Noise Speed", 0.001, 0.0001, 0.005));
+    gui.add(lowerLim.setup("Lower Limit", 0, 0, 125));
+    gui.add(uppderLim.setup("Upper Limit", 255, 126, 255));
+    gui.add(bShowNoiseVals.setup("Show Noise Values", false));
+    gui.add(bShowMask.setup("Show Binary Mask", false));
+    gui.add(bShowIndexVals.setup("Show Index Values", false));
+    gui.add(lightsOn.setup("Lights On", false));
+    gui.add(displayCoeff.setup("size of simulation", 3, 0.5, 5));
     
-    
-	numIterations = ceil(float(numPixels) / float(messPerFrame));
-    iteration = 0;
+    gui.setPosition(10, cameraHeight + 10);
+    gui.loadFromFile("settings.xml");
 
-
-  
 }
 
 
-//--------------------------------------------------------------
+/////////////////////////////// UPDATE /////////////////////////////////////////
 void testApp::update()
 {
-	
-//////////////////Prod Section //////////////////
-    iteration ++;
-    if(iteration > numIterations)
+    background.setLearningTime(learningTime);
+    background.setThresholdValue(backgroundThresh);
+    if(reset)
     {
-        iteration = 0;
+        background.reset();
     }
-    
+
+    int shiftX;
+    int shiftY;
     
     
     //update the video grabber
@@ -77,157 +93,53 @@ void testApp::update()
     //if a new frame is available do this:
 	if(videoGrabber.isFrameNew())
     {
-        //get the pixels of the new frame
-        ofPixels pix = videoGrabber.getPixelsRef();
-        //mirror the pixels
-        pix.mirror(false, true); 
-        
-        
-        
-        for(int j = 0; j < cameraHeight/cellSize; j++)
+        regImage.setFromPixels(videoGrabber.getPixelsRef());
+        background.update(regImage, thresholded);
+        thresholded.update();
+
+        for(int i = 0; i < numCellsY; i ++)
         {
-        	for (int i = 0; i < cameraWidth/cellSize; i++)
-			{
-				int x = i*cellSize;
-				int y = j*cellSize;
-				br[(j*(cameraWidth/cellSize))+i] = (float)pix.getColor(x,y).getLightness();
-				br[(j*(cameraWidth/cellSize))+i] = ofMap(br[(j*(cameraWidth/cellSize))+i], 0, 255, 0, 2000);
-			}
+            shiftY = i * cellSize;
+            for(int j = 0; j < numCellsX; j ++)
+            {
+                shiftX = j * cellSize;
+                int total = 0;
+                for(int x = shiftX; x < shiftX + cellSize; x ++)
+                {
+                    for(int y = shiftY; y < shiftY + cellSize; y++)
+                    {
+                        total = total + thresholded.getColor(x,y).getLightness();
+                        //ofLog() << "total: " << total;
+                    }
+                }
+               br[ 1 + (i*numCellsX) + j ] = total / (cellSize*cellSize);
+            }
         }
     }
+    
+    
+
+   // ofLog() << message;
 
     makeNoise();
-    runLights(br);
     
+    for(int i = 0; i < numLEDs; i++)
+    {
+        finalVal[i] = (int)(br[i] * revealAmount) + (int)(noiseVal[i] * (1-revealAmount));
+        finalVal[i] = ofMap(finalVal[i], 0, 255, lowerLim, uppderLim);
+    }
+    
+    if(lightsOn)
+    {
+        sendLights();
+    }
 }
 
 
-
-///////////////////////// NOISE ///////////////////////////////////
-void testApp::makeNoise(void)
-{
-    for(int i = 0; i < messPerFrame + (messPerFrame * iteration); i++)
-    {
-        if(i <= numLEDs)
-        {
-            noiseVal[i] = abs(noiseAmp * ofNoise(time + (i*10)));
-           // ofLog() << "index: " << i << " || value: " << noiseVal[i];
-        }
-    }
-    time += timeInc;
-}
-
-
-////////////////////// RUN LIGHTS //////////////////////////////////
-void testApp::runLights(float br[])
-{
-	//create array to hold final LED values
-    int finalBright[16*numBoards];
-    
-    //variable to keep track of how many messages we are sending each frame
-    int numMessages = 0;
-    
-    
-    
-    /*////////////////////////////////////////////////////////////////////
-    each frame we send two groups of values... first, we send the video + noise values (white only)
-    then, we send the iteration of noise updates.
-     */////////////////////////////////////////////////////////////////////
-    
-    
-    
-    /////////////// fist we send the video values (including the noise value)
-	for(int i = 0; i < numLEDs; i++)
-    {
-    	
-        //if the video pixel is > black, get it's value and add it to noise
-        if(br[i] > 0)
-        {
-            //final brightness equals video vals + noiseVals
-            finalBright[i] = br[i] + noiseVal[i];
-            
-            
-            
-            
-            //message buffer
-            unsigned char sendBuff[5];
-            
-            //this 16bit value needs to be split into two bytes (8bit values)
-            //uint16_t value = finalBright[i];
-            uint16_t value = (int)noiseVal[i];
-            
-            //split the 16 bit value into two bytes
-            uint8_t byte1 = value & 0xff;
-            uint8_t byte2 = value >> 8;
-            
-            
-            //send the buffer
-            sendBuff[0] = 'a';  //handshake
-            sendBuff[1] = i;    //channel
-            sendBuff[2] = byte1;    //part one of LED value
-            sendBuff[3] = byte2;    //part two of LED value
-            
-            int test;
-            test = byte1 | byte2 << 8;
-            //ofLog() << "original val: " << (int)noiseVal[i] << " | test byte: " << test;
-            
-            
-            int time = ofGetElapsedTimeMicros();
-            serial.writeBytes(sendBuff, 4);
-            numMessages ++;   //increment this counter after each message buffer is sent
-            ofDrawBitmapString("time per packet" + ofToString(ofGetElapsedTimeMicros() - time), 0,0);
-        }
-    }
-    
-    
-    /////////////// then we send the noise values
-    for(int i = 0; i < messPerFrame + (messPerFrame * iteration); i++)
-    {
-        if(i <= numLEDs)
-        {
-            //message buffer
-            unsigned char sendBuff[5];
-            
-            //this 16bit value needs to be split into two bytes (8bit values)
-            uint16_t value = (int)noiseVal[i];
-            
-            //split the 16 bit value into two bytes
-            uint8_t byte1 = value & 0xff;
-            uint8_t byte2 = value >> 8;
-            
-            
-            //send the buffer
-            sendBuff[0] = 'a';  //handshake
-            sendBuff[1] = i;    //channel
-            sendBuff[2] = byte1;    //part one of LED value
-            sendBuff[3] = byte2;    //part two of LED value
-            
-            int test;
-            test = byte1 | byte2 << 8;
-            //ofLog() << "original val: " << (int)noiseVal[i] << " | test byte: " << test;
-            
-            
-            int time = ofGetElapsedTimeMicros();
-            serial.writeBytes(sendBuff, 4);
-            numMessages ++;   //increment this counter after each message buffer is sent
-            
-            //
-            ofDrawBitmapString("time per packet" + ofToString(ofGetElapsedTimeMicros() - time), 0,0);
-            
-        }
-    }
-    
-    //report how many messages are being sent.
-    ofDrawBitmapString("number of messages per frame: " + ofToString(numMessages), 0, 10);
-}
-
-
-
-
-
-//--------------------------------------------------------------
+/////////////////////////////// DRAW /////////////////////////////////////////
 void testApp::draw(){
 	
+    
     int leftSpace = 100;
 	int space = 200-cellSize;
 	int height = 230;
@@ -235,31 +147,30 @@ void testApp::draw(){
 	ofBackground(10, 10, 10);
 
 	ofSetColor(255);
-	videoGrabber.draw(leftSpace, height, cameraWidth*displayCoeff, cameraHeight*displayCoeff);
-	ofDrawBitmapString("Source", leftSpace, height-20);
-
-
-			
+    gui.draw();
 	
-		//ofTranslate(cameraWidth+100,100);
-		//pixelTexture.draw(0,0);
-	
-	ofDrawBitmapString("Pixelated and Mirrored", cameraWidth*displayCoeff+leftSpace+space+cellSize, height - 20);
+    ofPushMatrix();
+        ofTranslate(10,10);
+        videoGrabber.draw(0, 0);
+        if(bShowMask) thresholded.draw(0, 0);
+        ofNoFill();
+        ofRect(0, 0, videoGrabber.getWidth(), videoGrabber.getHeight());
+    ofPopMatrix();
 
-	for(int j = 0; j < (cameraHeight/cellSize); j++)
+	for(int i = 0; i < numCellsY; i++)
 		{
-			for(int i = 0; i < (cameraWidth/cellSize); i++)
+			for(int j = 0; j < numCellsX; j++)
 			{
-				ofPushMatrix();
-				ofTranslate(space,0);
-				ofTranslate(i*cellSize*displayCoeff+cameraWidth*displayCoeff+space, j*cellSize*displayCoeff+height);
-				//ofSetColor(stevensLaw(br[j*(cameraWidth/cellSize)+i]));
-                int noiseMapped = ofMap(noiseVal[j*(cameraWidth/cellSize)+i], 0, 2000, 0, 125);
-                int camMapped = ofMap(br[j*(cameraWidth/cellSize)+i], 0, 2000, 0, 125);
-                ofSetColor(noiseMapped + camMapped);
+				ofFill();
+                ofPushMatrix();
+				ofTranslate(cameraWidth - 30, cameraHeight + 20);
+                ofTranslate(j*cellSize* displayCoeff, i*cellSize * displayCoeff);
+				
+                    ofSetColor(finalVal[i*numCellsX+j]);
 					ofRect(0.0,0.0,cellSizeFl*displayCoeff, cellSizeFl*displayCoeff);
                     ofSetColor(255,0,0);
-                    ofDrawBitmapString(ofToString(j*(cameraWidth/cellSize)+i), 0,10);
+                    if(bShowNoiseVals) ofDrawBitmapString(ofToString(noiseVal[(i*numCellsX) + j]), 0,10);
+                    if(bShowIndexVals) ofDrawBitmapString(ofToString(i*numCellsX + j), 0, 10);
 				ofPopMatrix();
 			}
 		}
@@ -272,33 +183,41 @@ void testApp::draw(){
 }
 
 
-///////////////////////// TEST COMMUNICATION ///////////////////////////////////
-void testApp::testCom(int val)
+
+
+/////////////////////////////// NOISE /////////////////////////////////////////
+void testApp::makeNoise(void)
 {
-    unsigned char sendBuff[5];
     
-    for(uint8_t i; i < numLEDs; i++)
+    for(int j = 0; j < numCellsX; j++)
     {
-        uint16_t value = val;
-        
-        uint8_t byte1 = value & 0xff;
-        uint8_t byte2 = value >> 8;
-        
-        sendBuff[0] = 'a';  //handshake
-        sendBuff[1] = i;    //channel
-        sendBuff[2] = byte1;
-        sendBuff[3] = byte2;
-        // sendBuff[4] = 'e'; //end byte
-        
-        int test;
-        test = byte1 | byte2 << 8;
-        //ofLog() << "original val: " << (int)noiseVal[i] << " | test byte: " << test;
-        
-        
-        int time = ofGetElapsedTimeMicros();
-        serial.writeBytes(sendBuff, 4);
-        ofDrawBitmapString("time per packet" + ofToString(ofGetElapsedTimeMicros() - time), 0,0);
+        for(int i = 0; i < numCellsY; i++)
+        {
+            noiseVal[(i*numCellsX) + j] = abs(noiseAmp * ofNoise(time * (j+10), time * (10 - i)) );
+            
+            
+        }
     }
+    time += timeInc;
+}
+
+
+//////////////////////////// RUN LIGHTS //////////////////////////////////
+void testApp::sendLights(){
+    
+    
+    
+    
+    string message = "";
+    for(int i = 0; i < numLEDs; i++)
+    {
+        message+= ofToString(i) + "|" + ofToString(finalVal[i]) + "[/p]";
+        //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
+    }
+    udpConnection.Send(message.c_str(),message.length());
+    //ofLog() << "Message Length: " << message.length();
+    
+    
 }
 
 
@@ -306,13 +225,10 @@ void testApp::testCom(int val)
 void testApp::keyPressed(int key){
     if(key == ' ')
     {
-        testCom(4095);
-        //serial.writeByte('a');
-        
-    }
+           }
     if(key == 't')
     {
-        testCom(0);
+        
     }
 }
 

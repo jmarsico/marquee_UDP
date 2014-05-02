@@ -1,6 +1,10 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxCv.h"
+#include "ofxOpenCv.h"
+#include "ofxGui.h"
+#include "ofxNetwork.h"
 
  // set to -1 to not use the enable pin (its optional)
 
@@ -14,38 +18,67 @@ public:
     void keyPressed(int key);
     
     
-	void runLights(float br[]);
+    void sendLights();
     void makeNoise(void);
-    void testCom(int val);
     
-
-	int val;
-	int valInc;
-
-    const static int numLEDs = 17;
-	float br[numLEDs];
-    float noiseVal[numLEDs];
+    
+    
+    const static int numLEDs = 280;
+	int br[numLEDs];
+    int finalVal[numLEDs];
+    
+    
+    
 	unsigned char* pixels;
 	int cellSize;
 	float cellSizeFl;
 	int numPixels;
+    int numCellsX, numCellsY;
+    bool bReadyToSend;
 
 	int	cameraWidth;
 	int	cameraHeight;
 
-	float displayCoeff;
+    
+    vector <int> noiseCoeffs;
     
     
     //noise Vars
-    float noiseSpeedX, noiseSpeedY, noiseAmp, time, timeInc;
+    float noiseAmp, time;
+    int noiseVal[numLEDs];
+    
+    int sendTime;
 
 	
 	int numBoards;
-
-	ofVideoGrabber videoGrabber;
-	//ofTexture pixelTexture;
     
-    ofSerial	serial;
+    //video stuff
+	ofVideoGrabber videoGrabber;
+    ofxCv::RunningBackground background;
+    ofImage thresholded;
+    ofImage regImage;
+    
+    ofxPanel gui;
+    ofxIntSlider backgroundThresh;
+    ofxIntSlider blurAmount;
+    ofxIntSlider erodeAmount;
+    ofxIntSlider dilateAmount;
+    ofxIntSlider learningTime;
+    ofxFloatSlider revealAmount;
+    ofxFloatSlider timeInc;
+    ofxIntSlider lowerLim;
+    ofxIntSlider uppderLim;
+    ofxToggle bShowNoiseVals;
+    ofxToggle bShowIndexVals;
+    ofxToggle bShowMask;
+    ofxToggle  lightsOn;
+    ofxFloatSlider displayCoeff;
+    
+    ofxButton reset;
+    
+    
+     ofxUDPManager udpConnection;
+
     
     
     

@@ -1,15 +1,15 @@
 <panel>
-	<bgThresh>21</bgThresh>
-	<learnTime>50</learnTime>
-	<reveal_video>0.41</reveal_video>
-	<Noise_Speed>0.001766</Noise_Speed>
+	<bgThresh>34</bgThresh>
+	<learnTime>30</learnTime>
+	<reveal_video>0.73</reveal_video>
+	<Noise_Speed>0.000394</Noise_Speed>
 	<Lights_On>0</Lights_On>
 <panel/>
 <Lower_Limit>96</Lower_Limit>
 	<Upper_Limit>255</Upper_Limit>
 	<Show_Noise_Values>0</Show_Noise_Values>
 	<Show_Index_Values>0</Show_Index_Values>
-<Show_Binary_Mask>0</Show_Binary_Mask>
+<Show_Binary_Mask>1</Show_Binary_Mask>
 	<size_of_simulation>2.03</size_of_simulation>
 <group>
 		<Show_Binary_Mask>0</Show_Binary_Mask>

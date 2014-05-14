@@ -31,16 +31,7 @@ public:
     int finalVal[numLEDs];
     int fittedVals[numLEDs];
     
-    int numLightsInRow[numRows] = {
-        11, 17,
-        23, 23,
-        23, 23,
-        23, 23,
-        23, 23,
-        23, 22,
-        19, 16,
-        13, 11
-    };
+    int numLightsInRow[numRows]; 
     
 	unsigned char* pixels;
 	int cellSize;

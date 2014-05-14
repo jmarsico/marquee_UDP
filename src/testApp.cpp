@@ -6,11 +6,33 @@
 //--------------------------------------------------------------
 void testApp::setup()
 {
+
+	ofSetFrameRate(60);
+
 	ofSetFrameRate(30);
     //ofSetLogLevel(OF_LOG_VERBOSE);
 
+
 	numBoards = ceil(float(numLEDs) / 16.0);
     ofLog() << "numboards: " << numBoards;
+    
+    numLightsInRow[0] =   11;
+    numLightsInRow[1] =17;
+    numLightsInRow[2] = 23;
+    numLightsInRow[3] =  23;
+    numLightsInRow[4] = 23;
+    numLightsInRow[5] = 23;
+    numLightsInRow[6] = 23;
+    numLightsInRow[7] = 23;
+    numLightsInRow[8] = 23;
+    numLightsInRow[9] = 23;
+    numLightsInRow[10] = 23;
+    numLightsInRow[11] = 22;
+    numLightsInRow[12] = 19;
+    numLightsInRow[13] = 16;
+    numLightsInRow[14] = 13;
+    numLightsInRow[15] = 11;
+    
     
 	
     ofSetVerticalSync(false);
@@ -31,6 +53,10 @@ void testApp::setup()
 
 	displayCoeff = 1;
 	
+
+	//videoGrabber.listDevices();
+	videoGrabber.setDesiredFrameRate(60);
+
 	videoGrabber.initGrabber(cameraWidth, cameraHeight);
 	regImage.allocate(cameraWidth, cameraHeight, OF_IMAGE_COLOR);
     

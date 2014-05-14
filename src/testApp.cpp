@@ -6,7 +6,7 @@
 //--------------------------------------------------------------
 void testApp::setup()
 {
-	ofSetFrameRate(14);
+	ofSetFrameRate(60);
 
 	numBoards = ceil(float(numLEDs) / 16.0);
     ofLog() << "numboards: " << numBoards;
@@ -30,7 +30,7 @@ void testApp::setup()
 	displayCoeff = 1;
 	
 	//videoGrabber.listDevices();
-	//videoGrabber.setDesiredFrameRate(60);
+	videoGrabber.setDesiredFrameRate(60);
 	videoGrabber.initGrabber(cameraWidth, cameraHeight);
 	//pixels = new unsigned char[numPixels];
     

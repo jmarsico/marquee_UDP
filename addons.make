@@ -2,4 +2,4 @@ ofxGui
 ofxOpenCv
 ofxXmlSettings
 ofxCv
-ofxMacamPs3Eye
+ofxNetwork

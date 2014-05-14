@@ -17,17 +17,30 @@ public:
 	void draw();
     void keyPressed(int key);
     
-    
+    void fitToShape();
     void sendLights();
     void makeNoise(void);
+    int arraySum(int index);
     
     
     
-    const static int numLEDs = 280;
+    const static int numLEDs = 314;
+    const static int numRows = 16;
+    const static int numCols = 23;
 	int br[numLEDs];
     int finalVal[numLEDs];
+    int fittedVals[numLEDs];
     
-    
+    int numLightsInRow[numRows] = {
+        11, 17,
+        23, 23,
+        23, 23,
+        23, 23,
+        23, 23,
+        23, 22,
+        19, 16,
+        13, 11
+    };
     
 	unsigned char* pixels;
 	int cellSize;
@@ -45,10 +58,11 @@ public:
     
     //noise Vars
     float noiseAmp, time;
-    int noiseVal[numLEDs];
+    int noiseVal[numRows * numCols];
     
     int sendTime;
-
+    
+    
 	
 	int numBoards;
     
@@ -75,20 +89,7 @@ public:
     ofxFloatSlider displayCoeff;
     
     ofxButton reset;
-    
-    
-     ofxUDPManager udpConnection;
-
-    
-    
-    
-    
-private:
-    
-    const static int messPerFrame = 100;
-    int numIterations;
-    int iteration;
-
+    ofxUDPManager udpConnection;
 
 
 	

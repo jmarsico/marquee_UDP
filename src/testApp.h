@@ -17,7 +17,6 @@ public:
 	void draw();
     void keyPressed(int key);
     
-    void fitToShape();
     void sendLights();
     void makeNoise(void);
     int arraySum(int index);

@@ -10,7 +10,7 @@ void testApp::setup()
 	ofSetFrameRate(60);
 
 	ofSetFrameRate(30);
-    //ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_VERBOSE);
 
 
 	numBoards = ceil(float(numLEDs) / 16.0);
@@ -141,7 +141,6 @@ void testApp::update()
                     }
                 }
                 
-                
                 int loc = (arraySum(i)+ rowStepper) - numLightsInRow[i];
                 br[loc] = total / (cellSize*cellSize);
                 ofLogVerbose() << "br[" << loc << "]: " << br[loc];
@@ -150,7 +149,7 @@ void testApp::update()
         }
        
     }
-   // makeNoise();//make the noise
+    makeNoise();//make the noise
    
     //combine video and noise for all values
     for(int i = 0; i < numPixels; i++)
@@ -171,7 +170,7 @@ int testApp::arraySum(int index){
     {
         sum += numLightsInRow[i];
     }
-    ofLogVerbose() << "arraySum: " << sum;
+    //ofLogVerbose() << "arraySum: " << sum;
     return sum;
 }
 
@@ -200,22 +199,25 @@ void testApp::draw(){
 	
     for(int i = 0; i < numRows; i++)
 		{
-			for(int j = (numCols - numLightsInRow[i]); j < numCols; j++)
+			int rowStepper = 0;
+            for(int j = (numCols - numLightsInRow[i]); j < numCols; j++)
 			{
-				ofFill();
+				int index = (arraySum(i) + rowStepper) - numLightsInRow[i];
+                ofFill();
                 ofPushMatrix();
 				ofTranslate(cameraWidth - 30, cameraHeight + 20);
                 ofTranslate(j*cellSize* displayCoeff, i*cellSize * displayCoeff);
-				
-                    ofSetColor(finalVal[arraySum(i) + j]);
-					ofRect(0.0,0.0,(float)cellSize*displayCoeff, (float)cellSize*displayCoeff);
+                
+                    ofSetColor(finalVal[index]);
+					ofCircle(0.0,0.0,(float)cellSize*displayCoeff/4.5, (float)cellSize*displayCoeff/4.5);
                 
                 
                 ofSetColor(255,0,0);
                     if(bShowNoiseVals) ofDrawBitmapString(ofToString(noiseVal[(i*numCols) + j]), 0,10);
                 ofSetColor(0,255,0);
-                    if(bShowIndexVals) ofDrawBitmapString(ofToString(i*numCols + j), 0, 20);
+                    if(bShowIndexVals) ofDrawBitmapString(ofToString(index), 0, 20);
 				ofPopMatrix();
+                rowStepper++;
 			}
 		}
 	ofSetColor(255);
@@ -231,9 +233,9 @@ void testApp::makeNoise(void)
     {
         for(int i = 0; i < numCols; i++)
         {
-            noiseVal[(i*numCols) + j] = abs(noiseAmp * ofNoise(time * (j+10), time * (10 - i)) );
+            noiseVal[(j*numCols) + i] = abs(noiseAmp * ofNoise(time * (j+10), time * (10 - i)) );
             
-            
+        
         }
     }
     time += timeInc;
@@ -251,22 +253,8 @@ void testApp::sendLights(){
     }
     udpConnection.Send(message.c_str(),message.length());
     //ofLog() << "Message Length: " << message.length();
-    
-    
 }
 
-
-
-
-
-//////////////////////////// FIT TO SHAPE //////////////////////////////////
-void testApp::fitToShape(){
-    
-    
-  
-
-    
-}
 
 
 

@@ -7,10 +7,9 @@
 void testApp::setup()
 {
 
-	ofSetFrameRate(60);
-
 	ofSetFrameRate(30);
-    ofSetLogLevel(OF_LOG_VERBOSE);
+
+    //sofSetLogLevel(OF_LOG_VERBOSE);
 
 
 	numBoards = ceil(float(numLEDs) / 16.0);
@@ -75,10 +74,9 @@ void testApp::setup()
     
     //create the socket and set to send to 127.0.0.1:11999
 	udpConnection.Create();
-	udpConnection.Connect("169.254.0.2",11999);
+	udpConnection.Connect("10.0.1.45",11999);
 	udpConnection.SetNonBlocking(true);
-    
-    
+        
     gui.setup("");
     gui.add(bShowMask.setup("Show Binary Mask", false));
     gui.add(backgroundThresh.setup("bgThresh", 21, 0, 255));

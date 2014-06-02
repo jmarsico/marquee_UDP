@@ -33,7 +33,7 @@ public:
     int numLightsInRow[numRows]; 
     
 	unsigned char* pixels;
-	int cellSize;
+	//int cellSize;
 	float cellSizeFl;
 	int numPixels;
     int numCellsX, numCellsY;
@@ -77,6 +77,9 @@ public:
     ofxToggle bShowMask;
     ofxToggle  lightsOn;
     ofxFloatSlider displayCoeff;
+    ofParameter <int> cellSize;
+    ofParameter <int> horizShift;
+    ofParameter <int> vertShift;
     
     ofxButton reset;
     ofxUDPManager udpConnection;

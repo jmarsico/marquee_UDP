@@ -15,8 +15,8 @@ void testApp::setup()
 	numBoards = ceil(float(numLEDs) / 16.0);
     ofLog() << "numboards: " << numBoards;
     
-    numLightsInRow[0] =   11;
-    numLightsInRow[1] =17;
+    numLightsInRow[0] = 11;
+    numLightsInRow[1] = 17;
     numLightsInRow[2] = 23;
     numLightsInRow[3] =  23;
     numLightsInRow[4] = 23;
@@ -37,8 +37,8 @@ void testApp::setup()
     ofSetVerticalSync(false);
 	cameraWidth		= 320;
 	cameraHeight	= 240;
-	cellSize = cameraHeight/numRows;
-	numPixels = (cameraWidth/cellSize) * (cameraHeight/cellSize);
+	
+	numPixels = numLEDs;
     
     int numberCols = numCols;
     int numberRows = numRows;
@@ -47,7 +47,7 @@ void testApp::setup()
     ofLog() << "cellSize: " << cellSize;
     ofLog() << "numCols: " << numberCols << " numRows: " << numberRows;
     
-    ofLog() << "numCellsX: " << cameraWidth/cellSize << " numCellsY: " << cameraHeight/cellSize;
+    //ofLog() << "numCellsX: " << cameraWidth/cellSize << " numCellsY: " << cameraHeight/cellSize;
     
 
 	displayCoeff = 1;
@@ -79,21 +79,25 @@ void testApp::setup()
         
     gui.setup("");
     gui.add(bShowMask.setup("Show Binary Mask", false));
-    gui.add(backgroundThresh.setup("bgThresh", 21, 0, 255));
-    gui.add(learningTime.setup("learnTime", 50, 1, 200));
-    gui.add(reset.setup("reset background"));
-    gui.add(revealAmount.setup("reveal video", 0.5, 0.0, 1.0));
+    gui.add(backgroundThresh.setup("Background Threshold", 21, 0, 255));
+    gui.add(learningTime.setup("LearnTime", 50, 1, 200));
+    gui.add(reset.setup("Reset Background"));
+    gui.add(revealAmount.setup("Reveal Video", 0.5, 0.0, 1.0));
     gui.add(timeInc.setup("Noise Speed", 0.001, 0.0001, 0.005));
     gui.add(lowerLim.setup("Lower Limit", 0, 0, 125));
     gui.add(uppderLim.setup("Upper Limit", 255, 126, 255));
     gui.add(bShowNoiseVals.setup("Show Noise Values", false));
     gui.add(bShowIndexVals.setup("Show Index Values", false));
     gui.add(lightsOn.setup("Lights On", false));
-    gui.add(displayCoeff.setup("size of simulation", 3, 0.5, 5));
+    gui.add(displayCoeff.setup("Size of Simulation", 3, 0.5, 5));
+    gui.add(cellSize.set("Zoom", 5, 5, cameraHeight/numRows));
+    gui.add(horizShift.set("Horizontal Shift", 0, 0, cameraWidth));
+    gui.add(vertShift.set("Vertical Shift", 0, 0, cameraHeight));
     
     gui.setPosition(10, cameraHeight + 10);
     gui.loadFromFile("settings.xml");
-
+    
+    cellSize = cameraHeight/numRows;
 }
 
 
@@ -124,12 +128,12 @@ void testApp::update()
         
         for(int i = 0; i < numRows; i ++)
         {
-            shiftY = i * cellSize;
+            shiftY = (i * cellSize) + vertShift;
             int rowStepper = 0;
             for(int j = (numCols - numLightsInRow[i]); j < numCols; j ++)
             {
                 
-                shiftX = j * cellSize;
+                shiftX = (j * cellSize) + horizShift;
                 int total = 0;
                 for(int x = shiftX; x < shiftX + cellSize; x ++)
                 {
@@ -191,10 +195,11 @@ void testApp::draw(){
         regImage.draw(0, 0);
         if(bShowMask) thresholded.draw(0, 0);
         ofNoFill();
-        ofRect(0, 0, videoGrabber.getWidth(), videoGrabber.getHeight());
+        ofSetColor(0,255,0);
+        ofRect(horizShift, vertShift, numCols * cellSize, numRows * cellSize);
     ofPopMatrix();
 
-	
+	float displayCellSize = 15;
     for(int i = 0; i < numRows; i++)
 		{
 			int rowStepper = 0;
@@ -204,10 +209,10 @@ void testApp::draw(){
                 ofFill();
                 ofPushMatrix();
 				ofTranslate(cameraWidth - 30, cameraHeight + 20);
-                ofTranslate(j*cellSize* displayCoeff, i*cellSize * displayCoeff);
+                ofTranslate(j*displayCellSize* displayCoeff, i*displayCellSize * displayCoeff);
                 
                     ofSetColor(finalVal[index]);
-					ofCircle(0.0,0.0,(float)cellSize*displayCoeff/4.5, (float)cellSize*displayCoeff/4.5);
+					ofCircle(0.0,0.0,(float)displayCellSize*displayCoeff/4.5, (float)displayCellSize*displayCoeff/4.5);
                 
                 
                 ofSetColor(255,0,0);

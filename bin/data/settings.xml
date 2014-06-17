@@ -1,0 +1,21 @@
+<group>
+	<Show_Binary_Mask>1</Show_Binary_Mask>
+	<bgThresh>30</bgThresh>
+	<learnTime>3</learnTime>
+	<reveal_video>0.585</reveal_video>
+	<Noise_Speed>0.000688</Noise_Speed>
+	<Lower_Limit>0</Lower_Limit>
+	<Upper_Limit>224</Upper_Limit>
+	<Show_Noise_Values>0</Show_Noise_Values>
+	<Show_Index_Values>0</Show_Index_Values>
+	<Lights_On>0</Lights_On>
+	<size_of_simulation>1.94</size_of_simulation>
+<group/>
+<Background_Threshold>59</Background_Threshold>
+	<LearnTime>1</LearnTime>
+	<Reveal_Video>0.205</Reveal_Video>
+	<Size_of_Simulation>1.76</Size_of_Simulation>
+	<Zoom>7</Zoom>
+	<Horizontal_Shift>118</Horizontal_Shift>
+	<Vertical_Shift>94</Vertical_Shift>
+</group>

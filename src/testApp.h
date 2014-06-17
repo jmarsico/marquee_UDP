@@ -77,12 +77,13 @@ public:
     ofxToggle bShowMask;
     ofxToggle  lightsOn;
     ofxFloatSlider displayCoeff;
-    ofParameter <int> cellSize;
-    ofParameter <int> horizShift;
-    ofParameter <int> vertShift;
+    ofxIntSlider cellSize;
+    ofxIntSlider horizShift;
+    ofxIntSlider vertShift;
     
     ofxButton reset;
-    ofxUDPManager udpConnection;
+    ofxUDPManager udp1;
+    ofxUDPManager udp2;
 
 
 	

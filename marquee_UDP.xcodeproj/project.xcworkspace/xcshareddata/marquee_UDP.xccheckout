@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>24BF16ED-0D87-4A81-BCB1-BB006D9DFE04</string>
+	<key>IDESourceControlProjectName</key>
+	<string>marquee_UDP</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>3AB241D0-6E49-44FE-BC06-B2517F93977C</key>
+		<string>https://github.com/kylemcdonald/ofxCv.git</string>
+		<key>D8EA3FED-07CF-43C0-A2CC-1E79E6D593BF</key>
+		<string>https://github.com/paulobarcelos/ofxMacamPs3Eye.git</string>
+		<key>F37B6338-B670-48C9-9BDB-86C230E71A84</key>
+		<string>https://github.com/jmarsico/marquee_UDP.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>marquee_UDP.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>3AB241D0-6E49-44FE-BC06-B2517F93977C</key>
+		<string>../../../../../addons/ofxCv</string>
+		<key>D8EA3FED-07CF-43C0-A2CC-1E79E6D593BF</key>
+		<string>../../../../../addons/ofxMacamPs3Eye</string>
+		<key>F37B6338-B670-48C9-9BDB-86C230E71A84</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/jmarsico/marquee_UDP.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>F37B6338-B670-48C9-9BDB-86C230E71A84</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F37B6338-B670-48C9-9BDB-86C230E71A84</string>
+			<key>IDESourceControlWCCName</key>
+			<string>marquee_UDP</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>3AB241D0-6E49-44FE-BC06-B2517F93977C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxCv</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D8EA3FED-07CF-43C0-A2CC-1E79E6D593BF</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxMacamPs3Eye</string>
+		</dict>
+	</array>
+</dict>
+</plist>

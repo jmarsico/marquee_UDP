@@ -7,9 +7,8 @@
 void testApp::setup()
 {
 
-	ofSetFrameRate(60);
 
-	ofSetFrameRate(30);
+	ofSetFrameRate(15);
     ofSetLogLevel(OF_LOG_VERBOSE);
 
 
@@ -240,7 +239,6 @@ void testApp::makeNoise(void)
         {
             noiseVal[(j*numCols) + i] = abs(noiseAmp * ofNoise(time * (j+10), time * (10 - i)) );
             
-        
         }
     }
     time += timeInc;

@@ -7,9 +7,15 @@
 void testApp::setup()
 {
 
+<<<<<<< HEAD
 
 	ofSetFrameRate(15);
     ofSetLogLevel(OF_LOG_VERBOSE);
+=======
+	ofSetFrameRate(15);
+
+    //sofSetLogLevel(OF_LOG_VERBOSE);
+>>>>>>> c56c8acdc1c305466183d96fb8a4b3a3a4c1fbd9
 
 
 	numBoards = ceil(float(numLEDs) / 16.0);
@@ -42,9 +48,10 @@ void testApp::setup()
     
     int numberCols = numCols;
     int numberRows = numRows;
+    int _cellSize = cellSize;
     ofLog() << "number rows * columns: " << numRows * numCols;
     ofLog() << "numPixels: " << numPixels;
-    ofLog() << "cellSize: " << cellSize;
+    ofLog() << "cellSize: " << _cellSize;
     ofLog() << "numCols: " << numberCols << " numRows: " << numberRows;
     
     //ofLog() << "numCellsX: " << cameraWidth/cellSize << " numCellsY: " << cameraHeight/cellSize;
@@ -72,12 +79,16 @@ void testApp::setup()
         noiseCoeffs.push_back(ofRandom(1000));
     }
     
-    //create the socket and set to send to 127.0.0.1:11999
-	udpConnection.Create();
-	udpConnection.Connect("169.254.0.2",11999);
-	udpConnection.SetNonBlocking(true);
-    
-    
+    //create the socket and set to send to IP of rPi 1:11999
+	udp1.Create();
+	udp1.Connect("10.0.1.45",11999);  //IP of rPi 1
+	udp1.SetNonBlocking(true);
+
+    //create the socket and set to send to IP of rPi 2:11999
+    udp2.Create();
+    udp2.Connect("10.0.1.46",11999); //IP of rPi 2
+    udp2.SetNonBlocking(true);
+        
     gui.setup("");
     gui.add(bShowMask.setup("Show Binary Mask", false));
     gui.add(backgroundThresh.setup("Background Threshold", 21, 0, 255));
@@ -91,20 +102,21 @@ void testApp::setup()
     gui.add(bShowIndexVals.setup("Show Index Values", false));
     gui.add(lightsOn.setup("Lights On", false));
     gui.add(displayCoeff.setup("Size of Simulation", 3, 0.5, 5));
-    gui.add(cellSize.set("Zoom", 5, 5, cameraHeight/numRows));
-    gui.add(horizShift.set("Horizontal Shift", 0, 0, cameraWidth));
-    gui.add(vertShift.set("Vertical Shift", 0, 0, cameraHeight));
+    gui.add(cellSize.setup("Zoom", 5, 5, cameraHeight/numRows));
+    gui.add(horizShift.setup("Horizontal Shift", 0, 0, cameraWidth));
+    gui.add(vertShift.setup("Vertical Shift", 0, 0, cameraHeight));
     
     gui.setPosition(10, cameraHeight + 10);
     gui.loadFromFile("settings.xml");
     
-    cellSize = cameraHeight/numRows;
+    //cellSize = cameraHeight/numRows;
 }
 
 
 /////////////////////////////// UPDATE /////////////////////////////////////////
 void testApp::update()
 {
+    
     background.setLearningTime(learningTime);
     background.setThresholdValue(backgroundThresh);
     if(reset)
@@ -164,6 +176,7 @@ void testApp::update()
     }
     
     if(lightsOn) sendLights();          //send it to raspberry Pi and LED drivers.
+    ofLog() << "updated";
 }
 
 /////////////////////////// arraySum ////////////////////////////////////////
@@ -249,13 +262,29 @@ void testApp::makeNoise(void)
 void testApp::sendLights(){
    
     string message = "";
-    for(int i = 0; i < numLEDs; i++)
+    //send the first 207 lights to rPi1 (udp1)
+    for(int i = 0; i < 208; i++)
     {
         message+= ofToString(i) + "|" + ofToString(finalVal[i]) + "[/p]";
         //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
     }
-    udpConnection.Send(message.c_str(),message.length());
-    //ofLog() << "Message Length: " << message.length();
+    udp1.Send(message.c_str(),message.length());
+    ofLog() << "udp1 Message Length: " << message.length();
+
+    //clear the string
+    message = "";
+    //send the first 207 lights to rPi2 (udp2)
+    for(int i = 208; i < numLEDs; i++)
+    {
+        //let's start at 0 for this string
+        int firstChannel = i-208;
+        message+= ofToString(firstChannel) + "|" + ofToString(finalVal[i]) + "[/p]";
+        //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
+    }
+    udp2.Send(message.c_str(),message.length());
+    ofLog() << "udp2 Message Length: " << message.length();
+
+
 }
 
 

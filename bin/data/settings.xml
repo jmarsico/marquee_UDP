@@ -1,12 +1,11 @@
-<panel>
-	<bgThresh>34</bgThresh>
-	<learnTime>30</learnTime>
-	<reveal_video>0.73</reveal_video>
-	<Noise_Speed>0.000394</Noise_Speed>
-	<Lights_On>0</Lights_On>
-<panel/>
-<Lower_Limit>96</Lower_Limit>
-	<Upper_Limit>255</Upper_Limit>
+<group>
+	<Show_Binary_Mask>1</Show_Binary_Mask>
+	<bgThresh>30</bgThresh>
+	<learnTime>3</learnTime>
+	<reveal_video>0.585</reveal_video>
+	<Noise_Speed>0.000688</Noise_Speed>
+	<Lower_Limit>0</Lower_Limit>
+	<Upper_Limit>224</Upper_Limit>
 	<Show_Noise_Values>0</Show_Noise_Values>
 	<Show_Index_Values>0</Show_Index_Values>
 <Show_Binary_Mask>1</Show_Binary_Mask>
@@ -32,3 +31,4 @@
 		<Vertical_Shift>0</Vertical_Shift>
 	</group>
 </panel>
+

@@ -78,9 +78,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "245"
-            endingLineNumber = "245"
-            landmarkName = "testApp::makeNoise(void)"
-            landmarkType = "5">
+            endingLineNumber = "245">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
@@ -124,7 +122,9 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "250"
-            endingLineNumber = "250">
+            endingLineNumber = "250"
+            landmarkName = "testApp::makeNoise(void)"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -138,7 +138,9 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "249"
-            endingLineNumber = "249">
+            endingLineNumber = "249"
+            landmarkName = "testApp::makeNoise(void)"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

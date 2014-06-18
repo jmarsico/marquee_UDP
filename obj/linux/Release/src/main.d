@@ -402,7 +402,8 @@ obj/linux/Release/src/main.o: src/main.cpp \
  ../../../addons/ofxNetwork/src/ofxTCPClient.h \
  ../../../addons/ofxNetwork/src/ofxTCPManager.h \
  ../../../addons/ofxNetwork/src/ofxTCPServer.h \
- ../../../addons/ofxNetwork/src/ofxUDPManager.h
+ ../../../addons/ofxNetwork/src/ofxUDPManager.h \
+ ../../../libs/openFrameworks/app/ofAppGlutWindow.h
 
 ../../../libs/openFrameworks/ofMain.h:
 
@@ -1245,3 +1246,5 @@ src/testApp.h:
 ../../../addons/ofxNetwork/src/ofxTCPServer.h:
 
 ../../../addons/ofxNetwork/src/ofxUDPManager.h:
+
+../../../libs/openFrameworks/app/ofAppGlutWindow.h:

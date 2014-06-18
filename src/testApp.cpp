@@ -7,15 +7,10 @@
 void testApp::setup()
 {
 
-<<<<<<< HEAD
 
 	ofSetFrameRate(15);
     ofSetLogLevel(OF_LOG_VERBOSE);
-=======
-	ofSetFrameRate(15);
 
-    //sofSetLogLevel(OF_LOG_VERBOSE);
->>>>>>> c56c8acdc1c305466183d96fb8a4b3a3a4c1fbd9
 
 
 	numBoards = ceil(float(numLEDs) / 16.0);
@@ -55,7 +50,6 @@ void testApp::setup()
     ofLog() << "numCols: " << numberCols << " numRows: " << numberRows;
     
     //ofLog() << "numCellsX: " << cameraWidth/cellSize << " numCellsY: " << cameraHeight/cellSize;
-    
 
 	displayCoeff = 1;
 	
@@ -105,6 +99,9 @@ void testApp::setup()
     gui.add(cellSize.setup("Zoom", 5, 5, cameraHeight/numRows));
     gui.add(horizShift.setup("Horizontal Shift", 0, 0, cameraWidth));
     gui.add(vertShift.setup("Vertical Shift", 0, 0, cameraHeight));
+    gui.add(udp1MessLeng.set("UDP1 Mess Lngth", 1, 0, 5000));
+    gui.add(udp2MessLeng.set("UDP2 Mess Lngth", 1, 0, 5000));
+    gui.add(frameRate.set("Frame Rate",10, 0, 100));
     
     gui.setPosition(10, cameraHeight + 10);
     gui.loadFromFile("settings.xml");
@@ -158,7 +155,7 @@ void testApp::update()
                 
                 int loc = (arraySum(i)+ rowStepper) - numLightsInRow[i];
                 br[loc] = total / (cellSize*cellSize);
-                ofLogVerbose() << "br[" << loc << "]: " << br[loc];
+                //ofLogVerbose() << "br[" << loc << "]: " << br[loc];
                 rowStepper++;
             }
         }
@@ -176,7 +173,6 @@ void testApp::update()
     }
     
     if(lightsOn) sendLights();          //send it to raspberry Pi and LED drivers.
-    ofLog() << "updated";
 }
 
 /////////////////////////// arraySum ////////////////////////////////////////
@@ -238,7 +234,8 @@ void testApp::draw(){
 			}
 		}
 	ofSetColor(255);
-	ofDrawBitmapString("FPS: " + ofToString(ofGetFrameRate(), 0), 5, ofGetWindowHeight()-5);
+	//ofDrawBitmapString("FPS: " + ofToString(ofGetFrameRate(), 0), 5, ofGetWindowHeight()-5);
+    frameRate = ofGetFrameRate();
 }
 
 
@@ -246,6 +243,7 @@ void testApp::draw(){
 void testApp::makeNoise(void)
 {
     
+    //make noise for underside of marquee
     for(int j = 0; j < numRows; j++)
     {
         for(int i = 0; i < numCols; i++)
@@ -254,6 +252,14 @@ void testApp::makeNoise(void)
             
         }
     }
+    
+    
+    //make 1D noise for bulbs in letters
+    for(int i = 0; i < numWordLights; i++)
+    {
+        wordLightVals[i] = abs(noiseAmp * ofNoise(time * (i+10)));
+    }
+    
     time += timeInc;
 }
 
@@ -262,27 +268,56 @@ void testApp::makeNoise(void)
 void testApp::sendLights(){
    
     string message = "";
-    //send the first 207 lights to rPi1 (udp1)
+    
+    ////////////////////// RaspberryPi 1 ///////////////////////////////
+    //send the first 207 underside lights to rPi1 (udp1)
     for(int i = 0; i < 208; i++)
     {
         message+= ofToString(i) + "|" + ofToString(finalVal[i]) + "[/p]";
         //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
     }
     udp1.Send(message.c_str(),message.length());
-    ofLog() << "udp1 Message Length: " << message.length();
+    //ofLog() << "udp1 Message Length: " << message.length();
+    if(message.length() > 0)
+    {
+        udp1MessLeng = message.length();
+    }
 
+    
+    ////////////////////// RaspberryPi 2 ///////////////////////////////
+    
     //clear the string
     message = "";
-    //send the first 207 lights to rPi2 (udp2)
+    //this variable will be used for underside lights and letter lights
+    int channel = 0;
+    //send the second batch of underside lights to rPi2 (udp2)
     for(int i = 208; i < numLEDs; i++)
     {
         //let's start at 0 for this string
-        int firstChannel = i-208;
-        message+= ofToString(firstChannel) + "|" + ofToString(finalVal[i]) + "[/p]";
+        channel = i-208;
+        message+= ofToString(channel) + "|" + ofToString(finalVal[i]) + "[/p]";
         //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
     }
+    
+    //advance one channel
+    channel++;
+    
+    ////////////////// send values for letters /////////////////////////
+    for(int i = 0; i < numWordLights; i++)
+    {
+        //start this channel where the last string left off with "channel"
+        int firstLetterLight = i + channel;
+        message+= ofToString(channel) + "|" + ofToString(wordLightVals[i]) + "[/p]";
+    }
+    
+    
     udp2.Send(message.c_str(),message.length());
-    ofLog() << "udp2 Message Length: " << message.length();
+    //ofLog() << "udp2 Message Length: " << message.length();
+    if(message.length() > 0)
+    {
+        udp2MessLeng = message.length();
+    }
+    
 
 
 }

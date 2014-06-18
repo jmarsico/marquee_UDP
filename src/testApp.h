@@ -32,6 +32,10 @@ public:
     
     int numLightsInRow[numRows]; 
     
+    const static int numWordLights = 100;
+    int wordLightVals[numWordLights];
+    
+    
 	unsigned char* pixels;
 	//int cellSize;
 	float cellSizeFl;
@@ -80,6 +84,9 @@ public:
     ofxIntSlider cellSize;
     ofxIntSlider horizShift;
     ofxIntSlider vertShift;
+    ofParameter<float> frameRate;
+    ofParameter<int> udp1MessLeng;
+    ofParameter<int> udp2MessLeng;
     
     ofxButton reset;
     ofxUDPManager udp1;

@@ -23,9 +23,9 @@ public:
     
     
     
-    const static int numLEDs = 314;
-    const static int numRows = 16;
-    const static int numCols = 23;
+    const static int numLEDs = 254;
+    const static int numRows = 14;
+    const static int numCols = 21;
 	int br[numLEDs];
     int finalVal[numLEDs];
     int fittedVals[numLEDs];

@@ -172,6 +172,7 @@ void testApp::update()
     }
     
     if(lightsOn) sendLights();          //send it to raspberry Pi and LED drivers.
+    frameRate = ofGetFrameRate();       //set the framerate variable for display in GUI
 }
 
 /////////////////////////// arraySum ////////////////////////////////////////
@@ -232,9 +233,11 @@ void testApp::draw(){
                 rowStepper++;
 			}
 		}
+    
+    
+        
 	ofSetColor(255);
-	//ofDrawBitmapString("FPS: " + ofToString(ofGetFrameRate(), 0), 5, ofGetWindowHeight()-5);
-    frameRate = ofGetFrameRate();
+
 }
 
 
@@ -257,13 +260,14 @@ void testApp::makeNoise(void)
     for(int i = 0; i < numWordLights; i++)
     {
         wordLightVals[i] = abs(noiseAmp * ofNoise(time * (i+10)));
+    
     }
     
     time += timeInc;
 }
 
 
-//////////////////////////// RUN LIGHTS //////////////////////////////////
+//////////////////////////// SEND LIGHTS //////////////////////////////////
 void testApp::sendLights(){
    
     string message = "";
@@ -276,7 +280,8 @@ void testApp::sendLights(){
         //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
     }
     udp1.Send(message.c_str(),message.length());
-    //ofLog() << "udp1 Message Length: " << message.length();
+    ofLog() << "message1: " << message;
+    ofLog() << " " ;
     if(message.length() > 0)
     {
         udp1MessLeng = message.length();
@@ -306,12 +311,13 @@ void testApp::sendLights(){
     {
         //start this channel where the last string left off with "channel"
         int firstLetterLight = i + channel;
-        message+= ofToString(channel) + "|" + ofToString(wordLightVals[i]) + "[/p]";
+        message+= ofToString(firstLetterLight) + "|" + ofToString(wordLightVals[i]) + "[/p]";
     }
     
     
     udp2.Send(message.c_str(),message.length());
-    //ofLog() << "udp2 Message Length: " << message.length();
+    ofLog() << "message2:" << message;
+    ofLog() << " " ;
     if(message.length() > 0)
     {
         udp2MessLeng = message.length();

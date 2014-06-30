@@ -6,7 +6,6 @@
 #include "ofxGui.h"
 #include "ofxNetwork.h"
 
- // set to -1 to not use the enable pin (its optional)
 
 class testApp : public ofBaseApp{
 

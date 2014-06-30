@@ -273,10 +273,10 @@ void testApp::sendLights(){
     for(int i = 0; i < 208; i++)
     {
         message+= ofToString(i) + "|" + ofToString(finalVal[i]) + "[/p]";
-        //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
+        ofLog() << message;
     }
     udp1.Send(message.c_str(),message.length());
-    //ofLog() << "udp1 Message Length: " << message.length();
+    ofLog() << message;
     if(message.length() > 0)
     {
         udp1MessLeng = message.length();
@@ -311,7 +311,7 @@ void testApp::sendLights(){
     
     
     udp2.Send(message.c_str(),message.length());
-    //ofLog() << "udp2 Message Length: " << message.length();
+    ofLog() << message;
     if(message.length() > 0)
     {
         udp2MessLeng = message.length();

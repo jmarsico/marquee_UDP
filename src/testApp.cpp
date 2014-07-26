@@ -16,7 +16,7 @@ void testApp::setup()
 	numBoards = ceil(float(numLEDs) / 16.0);
     ofLog() << "numboards: " << numBoards;
     
-    numLightsInRow[0] = 10;
+    numLightsInRow[0] = 9;
     numLightsInRow[1] = 21;
     numLightsInRow[2] = 21;
     numLightsInRow[3] = 21;
@@ -27,9 +27,9 @@ void testApp::setup()
     numLightsInRow[8] = 21;
     numLightsInRow[9] = 21;
     numLightsInRow[10] = 18;
-    numLightsInRow[11] = 15;
-    numLightsInRow[12] = 12;
-    numLightsInRow[13] = 10;
+    numLightsInRow[11] = 14;
+    numLightsInRow[12] = 11;
+    numLightsInRow[13] = 9;
 
     
     

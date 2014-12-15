@@ -74,15 +74,17 @@ void testApp::setup()
     
     //create the socket and set to send to IP of rPi 1:11999
 	udp1.Create();
-	udp1.Connect("10.0.1.45",11999);  //IP of rPi 1
+	udp1.Connect(RPI1, 11999);  //IP of rPi 1
 	udp1.SetNonBlocking(true);
 
     //create the socket and set to send to IP of rPi 2:11999
     udp2.Create();
-    udp2.Connect("10.0.1.46",11999); //IP of rPi 2
+    udp2.Connect(RPI2, 11999); //IP of rPi 2
     udp2.SetNonBlocking(true);
         
     gui.setup("");
+    gui.add(test.setup("test/run", false));
+    gui.add(testWaitTime.setup("Test Wait Time", 100, 50, 1000));
     gui.add(bShowMask.setup("Show Binary Mask", false));
     gui.add(backgroundThresh.setup("Background Threshold", 21, 0, 255));
     gui.add(learningTime.setup("LearnTime", 50, 1, 200));
@@ -105,11 +107,12 @@ void testApp::setup()
     gui.setPosition(10, cameraHeight + 10);
     gui.loadFromFile("settings.xml");
     
-    //cellSize = cameraHeight/numRows;
+    testCounter = 0;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// UPDATE /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void testApp::update()
 {
     
@@ -120,62 +123,72 @@ void testApp::update()
         background.reset();
     }
 
-    int shiftX;
-    int shiftY;
     
-    
-    //update the video grabber
-	videoGrabber.update();
-    
-    //if a new frame is available do this:
-	if(videoGrabber.isFrameNew())
+    //////////////////// normal functionality ///////////////////////////////
+    if(!test)
     {
-        regImage.setFromPixels(videoGrabber.getPixelsRef());
-        background.update(regImage, thresholded);
-        thresholded.update();
+        int shiftX;
+        int shiftY;
         
+        //update the video grabber
+        videoGrabber.update();
         
-        for(int i = 0; i < numRows; i ++)
+        //if a new frame is available do this:
+        if(videoGrabber.isFrameNew())
         {
-            shiftY = (i * cellSize) + vertShift;
-            int rowStepper = 0;
-            for(int j = (numCols - numLightsInRow[i]); j < numCols; j ++)
+            regImage.setFromPixels(videoGrabber.getPixelsRef());
+            background.update(regImage, thresholded);
+            thresholded.update();
+            
+            
+            for(int i = 0; i < numRows; i ++)
             {
-                
-                shiftX = (j * cellSize) + horizShift;
-                int total = 0;
-                for(int x = shiftX; x < shiftX + cellSize; x ++)
+                shiftY = (i * cellSize) + vertShift;
+                int rowStepper = 0;
+                for(int j = (numCols - numLightsInRow[i]); j < numCols; j ++)
                 {
-                    for(int y = shiftY; y < shiftY + cellSize; y++)
+                    
+                    shiftX = (j * cellSize) + horizShift;
+                    int total = 0;
+                    for(int x = shiftX; x < shiftX + cellSize; x ++)
                     {
-                        total = total + thresholded.getColor(x,y).getLightness();
+                        for(int y = shiftY; y < shiftY + cellSize; y++)
+                        {
+                            total = total + thresholded.getColor(x,y).getLightness();
+                        }
                     }
+                    
+                    int loc = (arraySum(i)+ rowStepper) - numLightsInRow[i];
+                    br[loc] = total / (cellSize*cellSize);
+                    //ofLogVerbose() << "br[" << loc << "]: " << br[loc];
+                    rowStepper++;
                 }
-                
-                int loc = (arraySum(i)+ rowStepper) - numLightsInRow[i];
-                br[loc] = total / (cellSize*cellSize);
-                //ofLogVerbose() << "br[" << loc << "]: " << br[loc];
-                rowStepper++;
             }
+           
         }
+        makeNoise();//make the noise
        
+        //combine video and noise for all values
+        for(int i = 0; i < numPixels; i++)
+        {
+            //scale video and noise appropriately, then combine
+            finalVal[i] = (int)(br[i] * revealAmount) + (int)(noiseVal[i] * (1-revealAmount));
+            //map to upper and lower limits as per GUI
+            finalVal[i] = ofMap(finalVal[i], 0, 255, lowerLim, uppderLim);
+        }
     }
-    makeNoise();//make the noise
-   
-    //combine video and noise for all values
-    for(int i = 0; i < numPixels; i++)
+    else if(test)
     {
-        //scale video and noise appropriately, then combine
-        finalVal[i] = (int)(br[i] * revealAmount) + (int)(noiseVal[i] * (1-revealAmount));
-        //map to upper and lower limits as per GUI
-        finalVal[i] = ofMap(finalVal[i], 0, 255, lowerLim, uppderLim);
+        testLoop();
     }
     
     if(lightsOn) sendLights();          //send it to raspberry Pi and LED drivers.
     frameRate = ofGetFrameRate();       //set the framerate variable for display in GUI
 }
 
-/////////////////////////// arraySum ////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/////////////////////////// arraySum ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 int testApp::arraySum(int index){
     int sum = 0;
     for(int i = 0; i <= index; i++)
@@ -186,8 +199,9 @@ int testApp::arraySum(int index){
     return sum;
 }
 
-
-///////////////////////////////////// DRAW /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////// DRAW /////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void testApp::draw(){
 	
     
@@ -280,8 +294,8 @@ void testApp::sendLights(){
         //ofLog() << "index: " << i << " || value: " << (int)finalVal[i];
     }
     udp1.Send(message.c_str(),message.length());
-    ofLog() << "message1: " << message;
-    ofLog() << " " ;
+    //ofLog() << "message1: " << message;
+    //ofLog() << " " ;
     if(message.length() > 0)
     {
         udp1MessLeng = message.length();
@@ -316,8 +330,8 @@ void testApp::sendLights(){
     
     
     udp2.Send(message.c_str(),message.length());
-    ofLog() << "message2:" << message;
-    ofLog() << " " ;
+    //ofLog() << "message2:" << message;
+    //ofLog() << " " ;
     if(message.length() > 0)
     {
         udp2MessLeng = message.length();
@@ -327,7 +341,32 @@ void testApp::sendLights(){
 
 }
 
-
+///////////////////////// TEST LOOP //////////////////////////////
+void testApp::testLoop(){
+    
+    if((ofGetElapsedTimeMillis() - testTimer) > testWaitTime)
+    {
+        for(int i = 0; i < numLEDs; i++)
+        {
+            if(testCounter == i)
+            {
+                finalVal[i] = 255;
+            } else
+            {
+                finalVal[i] = 0;
+            }
+        }
+        
+        testCounter++;
+        if(testCounter > numLEDs - 1)
+        {
+            testCounter = 0;
+        }
+        testTimer = ofGetElapsedTimeMillis();
+    }
+    
+    
+}
 
 
 ///////////////////////// KEY PRESSED //////////////////////////////

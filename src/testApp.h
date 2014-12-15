@@ -6,6 +6,9 @@
 #include "ofxGui.h"
 #include "ofxNetwork.h"
 
+#define RPI1 "192.168.22.6"
+#define RPI2 "192.168.22.4"
+
 
 class testApp : public ofBaseApp{
 
@@ -19,6 +22,7 @@ public:
     void sendLights();
     void makeNoise(void);
     int arraySum(int index);
+    void testLoop();
     
     
     
@@ -31,7 +35,7 @@ public:
     
     int numLightsInRow[numRows]; 
     
-    const static int numWordLights = 100;
+    const static int numWordLights = 120;
     int wordLightVals[numWordLights];
     
     
@@ -54,6 +58,8 @@ public:
     int noiseVal[numRows * numCols];
     
     int sendTime;
+    int testCounter;
+    int testTimer;
     
     
 	
@@ -86,8 +92,11 @@ public:
     ofParameter<float> frameRate;
     ofParameter<int> udp1MessLeng;
     ofParameter<int> udp2MessLeng;
-    
     ofxButton reset;
+    ofxToggle test;
+    ofxIntSlider testWaitTime;
+    
+    
     ofxUDPManager udp1;
     ofxUDPManager udp2;
 

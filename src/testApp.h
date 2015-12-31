@@ -6,6 +6,9 @@
 #include "ofxGui.h"
 #include "ofxNetwork.h"
 
+#define RPI1 "192.168.22.6"
+#define RPI2 "192.168.22.4"
+
 
 class testApp : public ofBaseApp{
 
@@ -31,7 +34,7 @@ public:
     
     int numLightsInRow[numRows]; 
     
-    const static int numWordLights = 100;
+    const static int numWordLights = 120;
     int wordLightVals[numWordLights];
     
     

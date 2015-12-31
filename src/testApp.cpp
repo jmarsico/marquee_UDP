@@ -74,12 +74,12 @@ void testApp::setup()
     
     //create the socket and set to send to IP of rPi 1:11999
 	udp1.Create();
-	udp1.Connect("10.0.1.45",11999);  //IP of rPi 1
+	udp1.Connect(RPI1,11999);  //IP of rPi 1
 	udp1.SetNonBlocking(true);
 
     //create the socket and set to send to IP of rPi 2:11999
     udp2.Create();
-    udp2.Connect("10.0.1.46",11999); //IP of rPi 2
+    udp2.Connect(RPI2,11999); //IP of rPi 2
     udp2.SetNonBlocking(true);
         
     gui.setup("");
@@ -280,12 +280,9 @@ void testApp::sendLights(){
         ofLog() << message;
     }
     udp1.Send(message.c_str(),message.length());
-<<<<<<< HEAD
-    ofLog() << message;
-=======
+
     ofLog() << "message1: " << message;
     ofLog() << " " ;
->>>>>>> a3751ca0bca9f7c40f24e2c099af8f55ad68105f
     if(message.length() > 0)
     {
         udp1MessLeng = message.length();

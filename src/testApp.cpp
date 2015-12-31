@@ -138,7 +138,7 @@ void testApp::update()
         //if a new frame is available do this:
         if(videoGrabber.isFrameNew())
         {
-            regImage.setFromPixels(videoGrabber.getPixelsRef());
+            regImage.setFromPixels(videoGrabber.getPixels());
             background.update(regImage, thresholded);
             thresholded.update();
             

@@ -5,10 +5,13 @@
 #include "ofxOpenCv.h"
 #include "ofxGui.h"
 #include "ofxNetwork.h"
+#include "IPVideoGrabber.h"
+#include "ofxXmlSettings.h"
 
-#define RPI1 "192.168.22.6"
-#define RPI2 "192.168.22.4"
 
+
+using ofx::Video::IPVideoGrabber;
+using ofx::Video::SharedIPVideoGrabber;
 
 class testApp : public ofBaseApp{
 
@@ -66,7 +69,10 @@ public:
 	int numBoards;
     
     //video stuff
-	ofVideoGrabber videoGrabber;
+//    SharedIPVideoGrabber grabber;
+    
+    ofx::Video::IPVideoGrabber grabber;
+//	ofVideoGrabber videoGrabber;
     ofxCv::RunningBackground background;
     ofImage thresholded;
     ofImage regImage;
@@ -99,6 +105,8 @@ public:
     
     ofxUDPManager udp1;
     ofxUDPManager udp2;
+    
+    ofxXmlSettings config;
 
 
 	

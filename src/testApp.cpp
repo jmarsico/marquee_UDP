@@ -32,11 +32,10 @@ void testApp::setup()
     numLightsInRow[13] = 9;
 
     
-    
 	
     ofSetVerticalSync(false);
-	cameraWidth		= 320;
-	cameraHeight	= 240;
+	cameraWidth		= 640;
+	cameraHeight	= 480;
 	
 	numPixels = numLEDs;
     
@@ -53,10 +52,40 @@ void testApp::setup()
 	displayCoeff = 1;
 	
 
-	//videoGrabber.listDevices();
-	videoGrabber.setDesiredFrameRate(60);
-
-	videoGrabber.initGrabber(cameraWidth, cameraHeight);
+//	//videoGrabber.listDevices();
+//	videoGrabber.setDesiredFrameRate(60);
+//
+//	videoGrabber.initGrabber(cameraWidth, cameraHeight);
+    
+    if(!config.loadFile("config.xml"))
+    {
+        ofLog() << "Failed to load config.xml";
+    }
+    
+    
+    //////CAMERA
+    //set up the URL
+    string camUrl = "http://";
+    camUrl += config.getValue("CAMIP", "");
+    camUrl += "/Streaming/channels/1/preview";
+    
+    string camUser = config.getValue("CAMUSER", "admin");
+    string camPass = config.getValue("CAMPASS", "12345");
+    
+//    std::shared_ptr<ofx::Video::IPVideoGrabber> grabber = std::make_shared<ofx::Video::IPVideoGrabber>();
+    
+    //keep trying to connect until you connect
+    while(grabber.isConnected()==false)
+    {
+        ofLog() << "connecting...";
+        grabber.setCameraName("cam1");
+        grabber.setUsername(camUser.c_str());
+        grabber.setPassword(camPass.c_str());
+        grabber.setURI("http://192.168.0.101/cgi-bin/system?USER=admin&PWD=123456&CHANNEL=1&GET_STREAM");
+        grabber.connect();
+    }
+    
+    
 	regImage.allocate(cameraWidth, cameraHeight, OF_IMAGE_COLOR);
     
     background.setLearningTime(400);
@@ -72,15 +101,19 @@ void testApp::setup()
         noiseCoeffs.push_back(ofRandom(1000));
     }
     
+    
+    string rpi1 = config.getValue("RPI1", "192.168.22.6");
+    string rpi2 = config.getValue("RPI2", "192.168.22.4");
+    
     //create the socket and set to send to IP of rPi 1:11999
 	udp1.Create();
-	udp1.Connect(RPI1,11999);  //IP of rPi 1
+	udp1.Connect(rpi1.c_str(),11999);  //IP of rPi 1
 
 	udp1.SetNonBlocking(true);
 
     //create the socket and set to send to IP of rPi 2:11999
     udp2.Create();
-    udp2.Connect(RPI2,11999); //IP of rPi 2
+    udp2.Connect(rpi2.c_str(),11999); //IP of rPi 2
 
     udp2.SetNonBlocking(true);
         
@@ -106,7 +139,7 @@ void testApp::setup()
     gui.add(udp2MessLeng.set("UDP2 Mess Lngth", 1, 0, 5000));
     gui.add(frameRate.set("Frame Rate",10, 0, 100));
     
-    gui.setPosition(10, cameraHeight + 10);
+    gui.setPosition(ofGetWidth() - gui.getWidth() - 10, cameraHeight + 10);
     gui.loadFromFile("settings.xml");
     
     testCounter = 0;
@@ -124,6 +157,11 @@ void testApp::update()
     {
         background.reset();
     }
+    
+//    //check if camera is connected, if not, try to reconnect;
+//    if(!grabber.isConnected()){
+//        grabber.reset();
+//    }
 
     
     //////////////////// normal functionality ///////////////////////////////
@@ -133,12 +171,16 @@ void testApp::update()
         int shiftY;
         
         //update the video grabber
-        videoGrabber.update();
+//        videoGrabber.update();
+        
+        grabber.update();
         
         //if a new frame is available do this:
-        if(videoGrabber.isFrameNew())
+//        if(videoGrabber.isFrameNew())
+        if(grabber.isFrameNew())
         {
-            regImage.setFromPixels(videoGrabber.getPixels());
+//            regImage.setFromPixels(videoGrabber.getPixels());
+            regImage.setFromPixels(grabber.getPixels());
             background.update(regImage, thresholded);
             thresholded.update();
             

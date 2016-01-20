@@ -1,0 +1,21 @@
+<group>
+	<test_run>0</test_run>
+	<Test_Wait_Time>100</Test_Wait_Time>
+	<Show_Binary_Mask>0</Show_Binary_Mask>
+	<Background_Threshold>21</Background_Threshold>
+	<LearnTime>50</LearnTime>
+	<Reveal_Video>0.5</Reveal_Video>
+	<Noise_Speed>0.001</Noise_Speed>
+	<Lower_Limit>0</Lower_Limit>
+	<Upper_Limit>255</Upper_Limit>
+	<Show_Noise_Values>0</Show_Noise_Values>
+	<Show_Index_Values>0</Show_Index_Values>
+	<Lights_On>0</Lights_On>
+	<Size_of_Simulation>1.7825</Size_of_Simulation>
+	<Zoom>22</Zoom>
+	<Horizontal_Shift>195</Horizontal_Shift>
+	<Vertical_Shift>127</Vertical_Shift>
+	<UDP1_Mess_Lngth>1</UDP1_Mess_Lngth>
+	<UDP2_Mess_Lngth>1</UDP2_Mess_Lngth>
+	<Frame_Rate>15.0001</Frame_Rate>
+</group>

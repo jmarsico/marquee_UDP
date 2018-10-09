@@ -12,6 +12,13 @@ void testApp::setup()
     ofSetLogLevel(OF_LOG_VERBOSE);
 
 
+    ofHttpResponse resp = ofLoadURL("http://192.168.22.200/cgi-bin/system?USER=admin&PWD=123456&CHANNEL=1&V2_AUDIO_ENABLED=0");
+    
+    
+    resp = ofLoadURL("http://192.168.22.200/cgi-bin/system?USER=admin&PWD=123456&CHANNEL=1&RTP_B2=1");
+    
+                     
+    
 
 	numBoards = ceil(float(numLEDs) / 16.0);
     ofLog() << "numboards: " << numBoards;
@@ -78,10 +85,10 @@ void testApp::setup()
     while(grabber.isConnected()==false)
     {
         ofLog() << "connecting...";
-        grabber.setCameraName("cam1");
-        grabber.setUsername(camUser.c_str());
-        grabber.setPassword(camPass.c_str());
-        grabber.setURI("http://192.168.0.101/cgi-bin/system?USER=admin&PWD=123456&CHANNEL=1&GET_STREAM");
+//        grabber.setCameraName("cam1");
+//        grabber.setUsername(camUser.c_str());
+//        grabber.setPassword(camPass.c_str());
+        grabber.setURI("http://192.168.22.200/cgi-bin/system?USER=admin&PWD=123456&CHANNEL=1&GET_STREAM");
         grabber.connect();
     }
     
@@ -317,7 +324,7 @@ void testApp::makeNoise(void)
     //make 1D noise for bulbs in letters
     for(int i = 0; i < numWordLights; i++)
     {
-        wordLightVals[i] = abs(noiseAmp * ofNoise(time * (i+10)));
+        wordLightVals[i] = noiseVal[i];
     
     }
     
@@ -335,7 +342,7 @@ void testApp::sendLights(){
     for(int i = 0; i < 208; i++)
     {
         message+= ofToString(i) + "|" + ofToString(finalVal[i]) + "[/p]";
-        ofLog() << message;
+//        ofLog() << message;
     }
     udp1.Send(message.c_str(),message.length());
 

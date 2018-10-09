@@ -11,7 +11,7 @@
 
 
 using ofx::Video::IPVideoGrabber;
-using ofx::Video::SharedIPVideoGrabber;
+//using ofx::Video::SharedIPVideoGrabber;
 
 class testApp : public ofBaseApp{
 

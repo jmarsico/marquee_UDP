@@ -1,13 +1,13 @@
 #include "ofMain.h"
 #include "testApp.h"
-#include "ofAppGlutWindow.h"
+//#include "ofAppGlutWindow.h"
 //#ifdef TARGET_OPENGLES
 //#include "ofGLProgrammableRenderer.h"
 //#endif
 //========================================================================
 int main( ){
-	ofAppGlutWindow window;
-    ofSetupOpenGL(&window,1280,768,OF_FULLSCREEN);			// <-------- setup the GL context
+//	ofAppGlutWindow window;
+    ofSetupOpenGL(1280,768,OF_FULLSCREEN);			// <-------- setup the GL context
     
 
     //ofSetupOpenGL(1280,700,OF_WINDOW);
